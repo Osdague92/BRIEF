@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Formulario profesional para recopilar brief de desarrollo de sitio web. Diseño responsive, accesible y listo para producción." />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Brief de Desarrollo Web — Formulario</title>
+
+  <!-- Google Font (opcional) - instrucciones en README -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon placeholder -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%230B3D91/></svg>">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <div class="brand" aria-label="Logo del cliente">
+        <div class="logo-placeholder" role="img" aria-hidden="true">LOGO</div>
+        <div class="brand-text">
+          <h1>Brief para desarrollo web</h1>
+          <p class="muted">Complete este formulario con la mayor precisión posible.</p>
+        </div>
+      </div>
+
+      <nav role="navigation" aria-label="Acciones del formulario">
+        <button id="printBtn" class="btn small">Exportar / Imprimir</button>
+        <button id="downloadJsonBtn" class="btn small ghost">Descargar JSON</button>
+        <button id="downloadCsvBtn" class="btn small ghost">Descargar CSV</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="main" role="main">
+    <form id="briefForm" novalidate aria-describedby="formInstructions">
+      <p id="formInstructions" class="muted">Campos obligatorios marcados con <span aria-hidden="true">*</span>.</p>
+
+      <!-- Sección: Datos generales -->
+      <section class="card" aria-labelledby="datosTitle">
+        <h2 id="datosTitle">Datos generales</h2>
+
+        <label for="clienteNombre">Nombre del cliente / empresa <span aria-hidden="true">*</span></label>
+        <input id="clienteNombre" name="clienteNombre" type="text" required minlength="3" aria-required="true" />
+
+        <label for="contactoNombre">Nombre de la persona de contacto <span aria-hidden="true">*</span></label>
+        <input id="contactoNombre" name="contactoNombre" type="text" required minlength="3" />
+
+        <label for="contactoEmail">Correo electrónico <span aria-hidden="true">*</span></label>
+        <input id="contactoEmail" name="contactoEmail" type="email" required placeholder="nombre@ejemplo.com" />
+
+        <label for="contactoTel">Teléfono / WhatsApp</label>
+        <input id="contactoTel" name="contactoTel" type="tel" inputmode="tel" pattern="[0-9+()\\s-]{6,25}" placeholder="+57 3xx xxx xxxx" />
+
+        <label for="sitioActual">Sitio web actual (si existe)</label>
+        <input id="sitioActual" name="sitioActual" type="url" placeholder="https://ejemplo.com" />
+
+      </section>
+
+      <!-- Sección: Descripción -->
+      <section class="card" aria-labelledby="descTitle">
+        <h2 id="descTitle">Descripción</h2>
+
+        <label for="descripcionProyecto">Descripción breve del proyecto <span aria-hidden="true">*</span></label>
+        <textarea id="descripcionProyecto" name="descripcionProyecto" rows="4" required minlength="20" placeholder="Describe el negocio, producto o servicio..."></textarea>
+
+        <label for="historia">Historia o contexto relevante</label>
+        <textarea id="historia" name="historia" rows="3" minlength="0" placeholder="Contexto, antecedentes, experiencias previas..."></textarea>
+      </section>
+
+      <!-- Sección: Objetivos -->
+      <section class="card" aria-labelledby="objetivosTitle">
+        <h2 id="objetivosTitle">Objetivos</h2>
+
+        <label>Objetivos principales (seleccione hasta 3) <span aria-hidden="true">*</span></label>
+        <div class="checkbox-group" role="group" aria-label="Objetivos principales">
+          <label><input type="checkbox" name="objetivos" value="Generar leads" /> Generar leads</label>
+          <label><input type="checkbox" name="objetivos" value="Vender en línea" /> Vender en línea</label>
+          <label><input type="checkbox" name="objetivos" value="Branding / posicionamiento" /> Branding / posicionamiento</label>
+          <label><input type="checkbox" name="objetivos" value="Informativo" /> Informativo</label>
+          <label><input type="checkbox" name="objetivos" value="Soporte / atención" /> Soporte / atención</label>
+          <label><input type="checkbox" name="objetivos" value="Otro" /> Otro (especifique en comentarios)</label>
+        </div>
+
+        <label for="kpi">KPI / métricas de éxito</label>
+        <input id="kpi" name="kpi" type="text" placeholder="Ej: % aumento visitas, número de ventas, etc." />
+      </section>
+
+      <!-- Sección: Público objetivo -->
+      <section class="card" aria-labelledby="publicoTitle">
+        <h2 id="publicoTitle">Público objetivo</h2>
+
+        <label for="audiencia">Descripción del público objetivo <span aria-hidden="true">*</span></label>
+        <textarea id="audiencia" name="audiencia" rows="3" required minlength="10" placeholder="Edad, localización, intereses, comportamientos..."></textarea>
+
+        <label for="personas">Personas / arquetipos principales</label>
+        <input id="personas" name="personas" type="text" placeholder="Ej: madres jóvenes, profesionales, pymes..." />
+      </section>
+
+      <!-- Sección: Contenido -->
+      <section class="card" aria-labelledby="contenidoTitle">
+        <h2 id="contenidoTitle">Contenido</h2>
+
+        <label for="contenidoIncluido">¿Proporcionan contenido (textos, imágenes, logos)?</label>
+        <select id="contenidoIncluido" name="contenidoIncluido">
+          <option value="si">Sí — todo</option>
+          <option value="parcial">Parcial — algunas cosas</option>
+          <option value="no">No — el proveedor debe generar</option>
+        </select>
+
+        <label for="seccionesNecesarias">Secciones / páginas necesarias (home, about, tienda, blog...)</label>
+        <input id="seccionesNecesarias" name="seccionesNecesarias" type="text" placeholder="Lista separada por comas" />
+
+        <label for="idiomas">Idiomas (indicá si necesita multi-idioma)</label>
+        <select id="idiomas" name="idiomas">
+          <option value="es">Español (Colombia)</option>
+          <option value="es-en">Español + Inglés</option>
+          <option value="multi">Múltiples (especificar en comentarios)</option>
+        </select>
+      </section>
+
+      <!-- Sección: Diseño -->
+      <section class="card" aria-labelledby="disenoTitle">
+        <h2 id="disenoTitle">Diseño</h2>
+
+        <label>Preferencias de estilo</label>
+        <div class="checkbox-group" role="group" aria-label="Preferencias de estilo">
+          <label><input type="checkbox" name="estilo" value="Moderno" /> Moderno</label>
+          <label><input type="checkbox" name="estilo" value="Minimalista" /> Minimalista</label>
+          <label><input type="checkbox" name="estilo" value="Corporativo" /> Corporativo</label>
+          <label><input type="checkbox" name="estilo" value="Colorido" /> Colorido</label>
+        </div>
+
+        <label for="referencias">Referencias visuales (URLs o descripción)</label>
+        <input id="referencias" name="referencias" type="text" placeholder="Ej: https://behance.net/ejemplo" />
+
+        <label for="logoUpload">¿Tienen logo? (describir formato / subir por separado)</label>
+        <input id="logoUpload" name="logoUpload" type="text" placeholder="Formato: SVG/PNG/JPG - subir por correo o drive" />
+      </section>
+
+      <!-- Sección: Funcionalidades -->
+      <section class="card" aria-labelledby="funcTitle">
+        <h2 id="funcTitle">Funcionalidades</h2>
+
+        <label>Funciones necesarias (marque las que apliquen)</label>
+        <div class="checkbox-group" role="group" aria-label="Funciones necesarias">
+          <label><input type="checkbox" name="funciones" value="Formulario contacto" /> Formulario contacto</label>
+          <label><input type="checkbox" name="funciones" value="Carrito / ecommerce" /> Carrito / ecommerce</label>
+          <label><input type="checkbox" name="funciones" value="Blog" /> Blog</label>
+          <label><input type="checkbox" name="funciones" value="Panel administracion" /> Panel administración</label>
+          <label><input type="checkbox" name="funciones" value="Integracion pasarela pago" /> Integración pasarela de pago</label>
+          <label><input type="checkbox" name="funciones" value="Integracion api" /> Integración con APIs</label>
+          <label><input type="checkbox" name="funciones" value="Otro" /> Otro (describir en comentarios)</label>
+        </div>
+
+        <label for="prioridadFunc">Prioridad de funcionalidades (1 - baja, 5 - alta)</label>
+        <input id="prioridadFunc" name="prioridadFunc" type="range" min="1" max="5" step="1" value="3" aria-valuemin="1" aria-valuemax="5" />
+
+      </section>
+
+      <!-- Sección: Aspectos técnicos -->
+      <section class="card" aria-labelledby="tecnicoTitle">
+        <h2 id="tecnicoTitle">Aspectos técnicos</h2>
+
+        <label for="hosting">¿Tienen hosting / dominio?</label>
+        <select id="hosting" name="hosting">
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+          <option value="necesito">Necesito asesoría</option>
+        </select>
+
+        <label for="plataformaPref">Preferencia tecnológica (si tienen)</label>
+        <input id="plataformaPref" name="plataformaPref" type="text" placeholder="Ej: WordPress, React, PHP, Jamstack..." />
+
+        <label for="seguridad">Requerimientos de seguridad / cumplimiento</label>
+        <input id="seguridad" name="seguridad" type="text" placeholder="Ej: GDPR, manejo de datos sensibles..." />
+      </section>
+
+      <!-- Sección: Plazos y presupuesto -->
+      <section class="card" aria-labelledby="plazosTitle">
+        <h2 id="plazosTitle">Plazos y presupuesto</h2>
+
+        <label for="fechaDeseada">Fecha de entrega deseada</label>
+        <input id="fechaDeseada" name="fechaDeseada" type="date" />
+
+        <label for="presupuesto">Rango de presupuesto aproximado (COP)</label>
+        <select id="presupuesto" name="presupuesto">
+          <option value="menos-5">Menos de 5.000.000</option>
+          <option value="5-15">5.000.000 - 15.000.000</option>
+          <option value="15-40">15.000.000 - 40.000.000</option>
+          <option value="mas-40">Más de 40.000.000</option>
+        </select>
+
+        <label for="flexibilidad">¿El presupuesto y plazos son flexibles?</label>
+        <div role="radiogroup" aria-label="Flexibilidad">
+          <label><input type="radio" name="flexibilidad" value="si" /> Sí</label>
+          <label><input type="radio" name="flexibilidad" value="no" /> No</label>
+          <label><input type="radio" name="flexibilidad" value="parcial" /> Parcial</label>
+        </div>
+      </section>
+
+      <!-- Sección: Mantenimiento -->
+      <section class="card" aria-labelledby="mantenimientoTitle">
+        <h2 id="mantenimientoTitle">Mantenimiento</h2>
+
+        <label for="soporteNecesario">¿Necesitan soporte y mantenimiento?</label>
+        <select id="soporteNecesario" name="soporteNecesario">
+          <option value="no">No</option>
+          <option value="si-mensual">Sí — mensual</option>
+          <option value="si-por-horas">Sí — por horas</option>
+        </select>
+
+        <label for="actualizaciones">Frecuencia de actualizaciones deseada</label>
+        <input id="actualizaciones" name="actualizaciones" type="text" placeholder="Ej: semanal, mensual, según demanda" />
+      </section>
+
+      <!-- Sección: Comentarios -->
+      <section class="card" aria-labelledby="comentTitle">
+        <h2 id="comentTitle">Comentarios adicionales</h2>
+
+        <label for="comentarios">Comentarios / detalles adicionales</label>
+        <textarea id="comentarios" name="comentarios" rows="4" placeholder="Aclaraciones, prioridades, restricciones..."></textarea>
+
+        <label for="consentCorreo">¿Desea copia del brief por correo?</label>
+        <div role="radiogroup" aria-label="Copia por correo">
+          <label><input type="radio" name="consentCorreo" value="si" /> Sí</label>
+          <label><input type="radio" name="consentCorreo" value="no" checked /> No</label>
+        </div>
+
+        <label for="emailCopia">Correo para copia (opcional)</label>
+        <input id="emailCopia" name="emailCopia" type="email" placeholder="nombre@ejemplo.com" />
+      </section>
+
+      <!-- Acciones -->
+      <div class="form-actions" role="group" aria-label="Acciones del formulario">
+        <button type="button" id="clearBtn" class="btn ghost">Limpiar formulario</button>
+        <button type="submit" class="btn primary" id="submitBtn">Enviar brief</button>
+      </div>
+
+      <!-- Zona para errores accesibles -->
+      <div id="formMessages" role="status" aria-live="polite"></div>
+    </form>
+    <!-- Overlay y Modal resumen / confirmación (justo después del formulario) -->
+    <div id="overlay" class="overlay" aria-hidden="true"></div>
+    <div id="modalResumen" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="modal-content" role="document">
+        <h3 id="confirmTitle">Resumen del brief</h3>
+        <div id="summaryContent" class="summary"></div>
+        <div class="modal-actions">
+          <button id="btnEditar" class="btn ghost">Editar</button>
+          <button id="btnConfirmar" class="btn primary">Confirmar envío</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p class="muted">Diseño profesional • A tu medida /  • Accesible y responsive</p>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

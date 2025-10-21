@@ -1,0 +1,187 @@
+/* styles.css - Mobile-first, variables, accessible styles */
+
+/* CSS Variables: paleta */
+:root{
+  --bg: #ffffff;
+  --text: #0b0b0b;
+  --muted: #6b7280;
+  --primary: #0B3D91; /* azul oscuro */
+  --accent: #C5A15A; /* dorado metálico */
+  --card: #f7f9fc;
+  --gray-100: #f3f4f6;
+  --radius: 12px;
+  --max-width: 1000px;
+  --gap: 1rem;
+  --font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+* { box-sizing: border-box; }
+html,body { height:100%; }
+body{
+  margin:0;
+  font-family: var(--font-family);
+  background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+  padding-bottom:2rem;
+}
+
+/* Layout container */
+.container{
+  max-width:var(--max-width);
+  margin:0 auto;
+  padding:1rem;
+}
+
+/* Header */
+.site-header{
+  background:linear-gradient(90deg,var(--primary), #0a2b6f);
+  color: #fff;
+  padding:0.75rem 0;
+  box-shadow:0 4px 14px rgba(11,61,145,0.15);
+}
+.header-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+}
+.brand{ display:flex; gap:0.75rem; align-items:center; }
+.logo-placeholder{
+  width:56px; height:56px; border-radius:10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.06));
+  display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent);
+  border:2px solid rgba(255,255,255,0.08);
+}
+.brand-text h1{ margin:0; font-size:1.05rem; }
+.muted{ color:var(--muted); font-size:0.9rem; }
+
+/* Form card */
+.card{
+  background:var(--card);
+  padding:1rem;
+  border-radius:var(--radius);
+  margin-bottom:1rem;
+  box-shadow: 0 2px 8px rgba(13,38,72,0.04);
+}
+.card h2{ margin:0 0 0.5rem 0; font-size:1rem; color:var(--primary); }
+
+/* Form controls */
+label{ display:block; margin:0.6rem 0 0.4rem; font-weight:600; font-size:0.95rem; }
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="tel"],
+input[type="date"],
+select,
+textarea{
+  width:100%;
+  padding:0.6rem 0.75rem;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  background: #fff;
+  font-size:0.95rem;
+}
+input:focus, select:focus, textarea:focus{
+  outline: 3px solid rgba(11,61,145,0.12);
+  border-color: var(--primary);
+}
+
+.checkbox-group label, [role="radiogroup"] label{
+  display:inline-flex; gap:0.5rem; align-items:center; margin-right:0.5rem; margin-bottom:0.5rem;
+  font-weight:500; font-size:0.95rem;
+}
+
+/* Buttons */
+.btn{
+  display:inline-block;
+  padding:0.55rem 0.85rem;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+}
+.btn.small{ padding:0.35rem 0.6rem; font-size:0.85rem; }
+.btn.primary{
+  background:var(--primary);
+  color:#fff;
+  box-shadow: 0 6px 14px rgba(11,61,145,0.2);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn.primary:active{ transform:translateY(1px); }
+.btn.ghost{
+  background:transparent;
+  border:1px solid rgba(11,61,145,0.08);
+  color:var(--primary);
+}
+
+/* Actions */
+.form-actions{
+  display:flex;
+  gap:0.75rem;
+  justify-content:flex-end;
+  margin-top:0.5rem;
+}
+
+/* Modal */
+.modal{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background: rgba(2,6,23,0.5); padding:1rem;
+}
+.modal-content{
+  background:var(--bg);
+  border-radius:12px;
+  padding:1rem;
+  max-width:720px;
+  width:100%;
+  box-shadow:0 20px 50px rgba(2,6,23,0.45);
+}
+.summary{ max-height:50vh; overflow:auto; padding:0.5rem; border-radius:8px; background:#fafafa; border:1px solid #efefef; }
+
+/* Modal visibility and overlay control (hidden by default) */
+#modalResumen {
+  display: none; /* hidden by default */
+}
+#modalResumen.visible {
+  display: flex; /* same behavior as .modal */
+}
+
+/* Overlay element used to dim background and capture clicks */
+.overlay {
+  position: fixed; inset: 0; background: rgba(2,6,23,0.5); display: none; z-index: 8000;
+}
+.overlay.active {
+  display: block;
+}
+
+/* Ensure modal sits above overlay */
+#modalResumen { z-index: 9000; }
+
+/* Footer */
+.site-footer{ text-align:center; margin-top:1.5rem; color:var(--muted); }
+
+/* Responsive */
+@media(min-width:720px){
+  .card{ padding:1.25rem; }
+  .header-inner{ padding:0 0.5rem; }
+  form{ display:grid; grid-template-columns: 1fr 320px; gap:1rem; }
+  /* Make main content flow: first column main sections, second column summary? For simplicity we let form flow naturally */
+  /* For this demo we keep single column layout on mobile and slightly larger padding on desktop */
+  form[id="briefForm"]{ grid-template-columns: 1fr; }
+}
+
+/* Print styles */
+@media print{
+  body{ background: #fff; color:#000; }
+  header, footer, .form-actions, .btn, nav { display:none !important; }
+  .card{ box-shadow:none; background:transparent; border:none; padding:0; }
+  .summary, .modal-content{ border:none; box-shadow:none; }
+  textarea, input, select{ border:none; }
+}
+
+/* Accessible error state (JS toggles .error) */
+input.error, textarea.error, select.error { border-color:#d94b4b; box-shadow: 0 0 0 3px rgba(217,75,75,0.08); }
+
+/* Small utilities */
+.hidden{ display:none !important; }
