@@ -10,54 +10,94 @@
  * e.parameter o e.postData.contents contienen la payload.
  */
 function doPost(e) {
-  // Config
-  var SHEET_NAME = 'Responses';
-
-  // Autorespuesta de ejemplo
-  var response = { ok: false };
-
   try {
-    if (!e || !e.postData || !e.postData.contents) {
-      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'No JSON recibido' })).setMimeType(ContentService.MimeType.JSON);
+    // Configuración de CORS
+    var headers = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST',
+      'Content-Type': 'application/json'
+    };
+    
+    // Validar petición
+    if (!e.postData || !e.postData.contents) {
+      return sendResponse(headers, { error: 'No data received' }, 400);
     }
-
-    var payload = JSON.parse(e.postData.contents);
-
-    // Validaciones mínimas
-    if (!payload.contactoEmail || payload.contactoEmail.indexOf('@') === -1) {
-      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'Email inválido' })).setMimeType(ContentService.MimeType.JSON);
+    
+    // Parsear datos JSON
+    var data = JSON.parse(e.postData.contents);
+    
+    // Obtener hoja de cálculo activa o crear nueva
+    var ss = SpreadsheetApp.getActiveSpreadsheet() || 
+             SpreadsheetApp.create('Brief Responses');
+    var sheet = ss.getActiveSheet();
+    
+    // Configurar encabezados si es primera fila
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        'Fecha',
+        'Cliente',
+        'Contacto',
+        'Email',
+        'Teléfono',
+        'Descripción',
+        'Objetivos',
+        'Audiencia',
+        'Presupuesto',
+        'Fecha Deseada',
+        'JSON Completo'
+      ]);
     }
-    if (!payload.clienteNombre || payload.clienteNombre.length < 3) {
-      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'Nombre de cliente inválido' })).setMimeType(ContentService.MimeType.JSON);
+    
+    // Agregar nueva fila
+    sheet.appendRow([
+      new Date(),
+      data.clienteNombre || '',
+      data.contactoNombre || '',
+      data.contactoEmail || '',
+      data.contactoTel || '',
+      data.descripcionProyecto || '',
+      (data.objetivos || []).join(', '),
+      data.audiencia || '',
+      data.presupuesto || '',
+      data.fechaDeseada || '',
+      JSON.stringify(data)
+    ]);
+    
+    // Enviar email si se solicitó copia
+    if (data.consentCorreo && data.emailCopia) {
+      MailApp.sendEmail({
+        to: data.emailCopia,
+        subject: 'Copia de tu brief - ' + data.clienteNombre,
+        body: 'Gracias por completar el brief.\n\nResumen:\n' + 
+              Object.entries(data)
+                .map(([k,v]) => `${k}: ${v}`)
+                .join('\n')
+      });
     }
-
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) {
-      // Crear hoja y encabezados si no existe
-      sheet = ss.insertSheet(SHEET_NAME);
-      var headers = Object.keys(payload);
-      sheet.appendRow(headers);
-    }
-
-    // Ordenar columnas de hoja según headers existentes
-    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    var row = [];
-    headers.forEach(function(h){
-      var val = payload[h];
-      if (Array.isArray(val)) {
-        val = val.join(', ');
-      }
-      row.push(val || '');
-    });
-
-    sheet.appendRow(row);
-
-    response.ok = true;
-    response.message = 'Guardado en Google Sheets';
-    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) })).setMimeType(ContentService.MimeType.JSON);
+    
+    return sendResponse(headers, { 
+      message: 'Datos guardados correctamente'
+    }, 200);
+    
+  } catch (error) {
+    return sendResponse(headers, {
+      error: error.toString()
+    }, 500);
   }
+}
+
+function doGet() {
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      status: 'online',
+      timestamp: new Date()
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function sendResponse(headers, body, code) {
+  return ContentService
+    .createTextOutput(JSON.stringify(body))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeaders(headers);
 }
