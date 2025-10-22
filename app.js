@@ -1,6 +1,6 @@
 // app.js - Módulo ES (vanilla JS)
 // Configuración: cambia SUBMIT_URL por la URL de tu backend o Web App de Google Apps Script
-const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbza8NpIDe0nHmVFB7WcySIr-RkV-zCv1J9Ys9dEFuXUggwS2zpNyzct9Dw0hqznkU69Hw/exec'; // <-- Cambia esto antes de desplegar (ej: "https://script.google.com/macros/s/XXX/exec")
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycby2fGl2UsOlKYVOOvA0zWA9tKD8tLyW6UCQB-nqVxzozAU9sKJI7RuajHdP9z7IaSAn2Q/exec://script.google.com/macros/s/AKfycbza8NpIDe0nHmVFB7WcySIr-RkV-zCv1J9Ys9dEFuXUggwS2zpNyzct9Dw0hqznkU69Hw/exec'; // <-- Cambia esto antes de desplegar (ej: "https://script.google.com/macros/s/XXX/exec")
 const STORAGE_KEY = 'brief_form_v1';
 const AUTO_SAVE_DELAY = 600; // ms
 
@@ -220,23 +220,7 @@ function objectToCSV(obj) {
 }
 
 /* Submit flow: show modal summary, then confirm triggers network send */
-function setupSubmission(form) {
-  form.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const data = readForm(form);
-    const { ok, errors } = validateData(data);
-    if (!ok) {
-      showValidationErrors(form, errors);
-      return;
-    }
-    // render and open modal
-    renderSummary(data);
-    mostrarResumen();
-  });
-
-  // Modal buttons
-  // Buttons will be wired after DOMContentLoaded via IDs btnEditar / btnConfirmar
-}
+{ /* Reemplaza o añade la implementación de setupSubmission, performSubmit y manejadores del modal */ }
 
 /* Modal control functions */
 function mostrarResumen() {
@@ -298,99 +282,158 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* Perform network submission with states and fallback download */
-async function performSubmit() {
-  const form = qs('#briefForm');
-  const data = readForm(form);
-  const status = qs('#formMessages');
-  status.innerHTML = '<div class="muted">Enviando…</div>';
-  qs('#submitBtn').disabled = true;
+    // variable global para datos pendientes antes de enviar
+    let pendingSubmission = null;
 
-  try {
-    // POST JSON
-    const res = await fetch(SUBMIT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+    function setupSubmission(form) {
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        const data = readForm(form);
+        const validation = validateData(data);
+        if (!validation.ok) {
+          showValidationErrors(form, validation.errors);
+          return;
+        }
+        // guardar temporal y mostrar resumen
+        pendingSubmission = data;
+        renderSummary(data);
+        mostrarResumen(); // abre modal
+      });
+
+      // confirmar en modal
+      const btnConfirm = qs('#confirmSend');
+      if (btnConfirm) {
+        btnConfirm.addEventListener('click', async function () {
+          if (!pendingSubmission) return;
+          btnConfirm.disabled = true;
+          btnConfirm.textContent = 'Enviando...';
+          try {
+            await performSubmit(pendingSubmission);
+            // éxito: cerrar modal, limpiar form y mostrar mensaje
+            cerrarModal();
+            pendingSubmission = null;
+            clearForm(form);
+            alert('Brief enviado correctamente. Gracias.');
+          } catch (err) {
+            console.error(err);
+            alert('Error al enviar el brief: ' + (err.message || err));
+          } finally {
+            btnConfirm.disabled = false;
+            btnConfirm.textContent = 'Confirmar y Enviar';
+          }
+        });
+      }
+    }
+
+    async function performSubmit(data) {
+      // SUBMIT_URL debe estar definido arriba en app.js
+      const res = await fetch(SUBMIT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(()=>null);
+        throw new Error('Servidor respondió con error: ' + (txt || res.status));
+      }
+      const json = await res.json().catch(()=>null);
+      if (json && json.error) throw new Error(json.error);
+      return json;
+    }
+
+    /* Perform network submission with states and fallback download */
+    async function performSubmit() {
+      const form = qs('#briefForm');
+      const data = readForm(form);
+      const status = qs('#formMessages');
+      status.innerHTML = '<div class="muted">Enviando…</div>';
+      qs('#submitBtn').disabled = true;
+
+      try {
+        // POST JSON
+        const res = await fetch(SUBMIT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (!res.ok) {
+          // handle non-2xx
+          const text = await res.text().catch(() => '');
+          status.innerHTML = `<div class="muted">Error del servidor: ${res.status}. Respuesta: ${text || 'sin detalle'}</div>`;
+          // fallback: download JSON
+          download('brief-fallback.json', JSON.stringify(data, null, 2));
+        } else {
+          const json = await res.json().catch(() => ({}));
+          status.innerHTML = `<div class="muted">Enviado correctamente. ${json.message ? json.message : ''}</div>`;
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch (err) {
+        console.error('Network error', err);
+        status.innerHTML = '<div class="muted">Error de red al enviar. Se descargará un JSON como respaldo.</div>';
+        download('brief-offline.json', JSON.stringify(data, null, 2));
+      } finally {
+        qs('#submitBtn').disabled = false;
+      }
+    }
+
+    /* Setup download buttons */
+    function setupDownloads(form) {
+      qs('#downloadJsonBtn').addEventListener('click', () => {
+        const data = readForm(form);
+        download('brief.json', JSON.stringify(data, null, 2));
+      });
+      qs('#downloadCsvBtn').addEventListener('click', () => {
+        const data = readForm(form);
+        const csv = objectToCSV(data);
+        download('brief.csv', csv);
+      });
+      qs('#printBtn').addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    /* Attach clear button */
+    function setupClear(form) {
+      qs('#clearBtn').addEventListener('click', () => {
+        if (!confirm('¿Deseas limpiar todo el formulario? Esta acción no se puede deshacer.')) return;
+        clearForm(form);
+      });
+    }
+
+    /* Basic network error test (prueba de validación de red) */
+    async function networkTest() {
+      try {
+        const res = await fetch(SUBMIT_URL, { method: 'HEAD' });
+        return res.ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    /* Initialize */
+    document.addEventListener('DOMContentLoaded', async () => {
+      const form = qs('#briefForm');
+
+      attachAutosave(form);
+      loadFromStorage(form);
+      setupSubmission(form);
+      setupDownloads(form);
+      setupClear(form);
+
+      // show network availability at load (non-blocking)
+      const online = await networkTest();
+      const status = qs('#formMessages');
+      status.innerHTML = online ? '<div class="muted">Servicio de envío disponible.</div>' : '<div class="muted">Servicio de envío no accesible — las respuestas podrán descargarse localmente o enviarse cuando esté disponible.</div>';
+
+      // Accessibility: close modal with Esc
+      document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') {
+          const modal = qs('#confirmModal');
+          if (modal && !modal.hidden) modal.hidden = true;
+        }
+      });
+
+      // Example: show a basic validation test button (for developer)
+      console.debug('Brief form initialized. SUBMIT_URL=', SUBMIT_URL);
     });
-
-    if (!res.ok) {
-      // handle non-2xx
-      const text = await res.text().catch(() => '');
-      status.innerHTML = `<div class="muted">Error del servidor: ${res.status}. Respuesta: ${text || 'sin detalle'}</div>`;
-      // fallback: download JSON
-      download('brief-fallback.json', JSON.stringify(data, null, 2));
-    } else {
-      const json = await res.json().catch(() => ({}));
-      status.innerHTML = `<div class="muted">Enviado correctamente. ${json.message ? json.message : ''}</div>`;
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  } catch (err) {
-    console.error('Network error', err);
-    status.innerHTML = '<div class="muted">Error de red al enviar. Se descargará un JSON como respaldo.</div>';
-    download('brief-offline.json', JSON.stringify(data, null, 2));
-  } finally {
-    qs('#submitBtn').disabled = false;
-  }
-}
-
-/* Setup download buttons */
-function setupDownloads(form) {
-  qs('#downloadJsonBtn').addEventListener('click', () => {
-    const data = readForm(form);
-    download('brief.json', JSON.stringify(data, null, 2));
-  });
-  qs('#downloadCsvBtn').addEventListener('click', () => {
-    const data = readForm(form);
-    const csv = objectToCSV(data);
-    download('brief.csv', csv);
-  });
-  qs('#printBtn').addEventListener('click', () => {
-    window.print();
-  });
-}
-
-/* Attach clear button */
-function setupClear(form) {
-  qs('#clearBtn').addEventListener('click', () => {
-    if (!confirm('¿Deseas limpiar todo el formulario? Esta acción no se puede deshacer.')) return;
-    clearForm(form);
-  });
-}
-
-/* Basic network error test (prueba de validación de red) */
-async function networkTest() {
-  try {
-    const res = await fetch(SUBMIT_URL, { method: 'HEAD' });
-    return res.ok;
-  } catch (e) {
-    return false;
-  }
-}
-
-/* Initialize */
-document.addEventListener('DOMContentLoaded', async () => {
-  const form = qs('#briefForm');
-
-  attachAutosave(form);
-  loadFromStorage(form);
-  setupSubmission(form);
-  setupDownloads(form);
-  setupClear(form);
-
-  // show network availability at load (non-blocking)
-  const online = await networkTest();
-  const status = qs('#formMessages');
-  status.innerHTML = online ? '<div class="muted">Servicio de envío disponible.</div>' : '<div class="muted">Servicio de envío no accesible — las respuestas podrán descargarse localmente o enviarse cuando esté disponible.</div>';
-
-  // Accessibility: close modal with Esc
-  document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') {
-      const modal = qs('#confirmModal');
-      if (modal && !modal.hidden) modal.hidden = true;
-    }
-  });
-
-  // Example: show a basic validation test button (for developer)
-  console.debug('Brief form initialized. SUBMIT_URL=', SUBMIT_URL);
-});
