@@ -16,7 +16,10 @@ function doPost(e) {
       return sendError('No se recibieron datos');
     }
 
-    const data = JSON.parse(e.postData.contents);
+    // El contenido ahora viene como texto plano (text/plain) para evitar CORS preflight.
+    // Lo parseamos a JSON aquí en el servidor.
+    const jsonDataString = e.postData.contents;
+    const data = JSON.parse(jsonDataString);
     
     // Guardar en Spreadsheet
     const sheet = getOrCreateSheet();
@@ -55,13 +58,6 @@ function doGet() {
       timestamp: new Date()
     }))
     .setMimeType(ContentService.MimeType.JSON);
-}
-
-function sendResponse(headers, body, code) {
-  return ContentService
-    .createTextOutput(JSON.stringify(body))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeaders(headers);
 }
 
 function sendInternalEmail(data) {

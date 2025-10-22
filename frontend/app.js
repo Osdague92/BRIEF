@@ -353,7 +353,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // POST JSON
         const res = await fetch(SUBMIT_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          // Cambiamos el Content-Type para evitar la petición preflight (CORS)
+          // El backend debe ser ajustado para leer texto plano y parsearlo.
+          // No usamos 'application/x-www-form-urlencoded' porque es más complejo de parsear en Apps Script.
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(data),
         });
 
