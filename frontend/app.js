@@ -1,6 +1,6 @@
 // app.js - Módulo ES (vanilla JS)
 // Configuración: cambia SUBMIT_URL por la URL de tu backend o Web App de Google Apps Script
-const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzySUUGHlgVUgSLF4sZlCxwm7Y7AlchitwF_3__S5c_Q6tnH36nuqenPoshakbiCIyzDA/exec'; // <-- pega aquí la URL de tu Web App
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbxcyT18Ax21i1sVYUsnLB3RcVR88Fgc77bN16nBiSWqS9-TSVXRGkPq_fYopkV0J0kB/exec'; // <-- pega aquí la URL de tu Web App
 const STORAGE_KEY = 'brief_form_v1';
 const AUTO_SAVE_DELAY = 600; // ms
 
