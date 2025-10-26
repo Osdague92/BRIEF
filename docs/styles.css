@@ -197,10 +197,11 @@ input:focus, select:focus, textarea:focus{
 @media(min-width:720px){
   .card{ padding:1.25rem; }
   .header-inner{ padding:0 0.5rem; }
-  form{ display:grid; grid-template-columns: 1fr 320px; gap:1rem; }
-  /* Make main content flow: first column main sections, second column summary? For simplicity we let form flow naturally */
-  /* For this demo we keep single column layout on mobile and slightly larger padding on desktop */
-  form[id="briefForm"]{ grid-template-columns: 1fr; }
+  .form-grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap);
+  }
 }
 
 /* Print styles */
